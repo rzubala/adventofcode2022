@@ -5,7 +5,8 @@ class Solve03 extends FileReader {
       super();
       this.readData("src/03/input.data")
         .then((data) => {
-          this.process(data.split("\n"));
+          this.process1(data.split("\n"));
+          this.process2(data.split("\n"));
         })
         .catch((err) => console.log(err));
     }
@@ -21,7 +22,7 @@ class Solve03 extends FileReader {
         return char - this.aRef + 1
     }
 
-    process = (data: string[]) => {
+    process1 = (data: string[]) => {
         let sum = 0
         data.forEach(row => {
             const length = row.length
@@ -36,6 +37,24 @@ class Solve03 extends FileReader {
         })
         console.log(sum)
       };
+
+    process2 = (data: string[]) => {
+        let iter = 0
+        let sum = 0
+        while (iter < data.length) {
+            const part1 = data[iter]
+            const part2 = data[iter + 1]
+            const part3 = data[iter + 2]
+            for (const c of part1) {
+                if (part2.includes(c) && part3.includes(c)) {
+                    sum += this.score(c.charCodeAt(0))
+                    break;
+                }
+            }
+            iter += 3
+        }
+        console.log(sum)
+    }
 }
     
 new Solve03();
