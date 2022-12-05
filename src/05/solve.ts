@@ -2,11 +2,16 @@ import { isLetter } from "../utils";
 import { FileReader } from "../common";
 
 class Solve05 extends FileReader {  
+
+    mode = false
+
     constructor() {
       super();
       this.readData("src/05/input.data")
         .then((data) => {
-          this.process1(data.split("\n"));
+          this.process(data.split("\n"));
+          this.mode = true
+          this.process(data.split("\n"));
         })
         .catch((err) => console.log(err));
     }
@@ -36,7 +41,9 @@ class Solve05 extends FileReader {
       if (tmp === undefined) {
         return
       }
-      tmp.reverse()
+      if (!this.mode) {
+        tmp.reverse()
+      }
       stackTo.push(...tmp)
       stacks.set(from, stackFrom)
       stacks.set(to,  stackTo)
@@ -53,7 +60,7 @@ class Solve05 extends FileReader {
       return parseInt(valueStr, 10)
     }
 
-    process1 = (data: string[]) => {
+    process = (data: string[]) => {
       let stacksFinished = false
       const stacks = new Map<number, string[]>()
 
