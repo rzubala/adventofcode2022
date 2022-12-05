@@ -1,10 +1,10 @@
 import { isLetter } from "../utils";
 import { FileReader } from "../common";
 
-class Solve05 extends FileReader {
+class Solve05 extends FileReader {  
     constructor() {
       super();
-      this.readData("src/05/test.data")
+      this.readData("src/05/input.data")
         .then((data) => {
           this.process1(data.split("\n"));
         })
@@ -21,6 +21,36 @@ class Solve05 extends FileReader {
       }
       stack.unshift(value)
       stacks.set(index, stack);
+    }
+
+    move = (stacks: Map<number, string[]>, move: number, from: number, to: number) => {
+      const stackFrom = stacks.get(from)
+      if (stackFrom === undefined) {
+        return
+      }
+      const stackTo = stacks.get(to)
+      if (stackTo === undefined) {
+        return
+      }
+      const tmp = stackFrom?.splice(stackFrom.length - move, move)
+      if (tmp === undefined) {
+        return
+      }
+      tmp.reverse()
+      stackTo.push(...tmp)
+      stacks.set(from, stackFrom)
+      stacks.set(to,  stackTo)
+    }
+
+    getValue = (m: RegExpExecArray | null, index: number): number | undefined => {
+      if (m === null) {
+        return undefined
+      }
+      const valueStr = m.at(index)
+      if (valueStr === undefined) {
+        return undefined
+      }
+      return parseInt(valueStr, 10)
     }
 
     process1 = (data: string[]) => {
@@ -45,8 +75,24 @@ class Solve05 extends FileReader {
           }
           continue;
         }
+
+
+        const regex = new RegExp('move (\\d+) from (\\d+) to (\\d+)', 'gm')
+        const m = regex.exec(row)
+        const move = this.getValue(m, 1)
+        const from = this.getValue(m, 2)
+        const to = this.getValue(m, 3)
+        if (move === undefined || from === undefined || to === undefined) {
+          continue;
+        }
+        this.move(stacks, move, from, to)
       }
-      console.log(stacks)
+     
+      let result = ""
+      for (let s=1;s<=stacks.size;s++) {
+        result += stacks.get(s)?.pop()
+      }
+      console.log(result)
     };    
 }
     
