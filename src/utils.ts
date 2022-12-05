@@ -6,3 +6,7 @@ export const gcd = (a: number, b: number): number => {
 export function lcm(a: number, b: number) {
   return !a || !b ? 0 : Math.abs((a * b) / gcd(a, b));
 }
+
+export const isLetter = (c: string): boolean => {
+  return c.toLowerCase() != c.toUpperCase();
+}
