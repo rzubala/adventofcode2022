@@ -10,3 +10,7 @@ export function lcm(a: number, b: number) {
 export const isLetter = (c: string): boolean => {
   return c.toLowerCase() != c.toUpperCase();
 }
+
+export function hasDuplicates<Type>(array: Type[]): boolean {
+  return (new Set(array)).size !== array.length;
+}
