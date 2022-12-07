@@ -36,7 +36,6 @@ class Dir {
         }
     }
     updateTotalSize = (subDir: Dir) => {
-        //console.log('update', this.name, '<-', subDir.name, subDir.totalSize)
         this.totalSize += subDir.totalSize
     }
     print = (prefix: string = "") => {
@@ -64,7 +63,6 @@ class Solve07 extends FileReader {
   totalSum1 = 0
   totalSumCalc = (dir: Dir): void => {
     if (dir.totalSize <= this.sizeLimit1) {
-        console.log('sum', dir.name, dir.totalSize)
         this.totalSum1 += dir.totalSize
     }
     dir.childrenDir.forEach(d => this.totalSumCalc(d))   
@@ -77,13 +75,26 @@ class Solve07 extends FileReader {
     dir.parent?.updateTotalSize(dir)
   }
 
+  filesystemSize = 70000000
+  neededSpace = 30000000
+  unusedSpace = 0
+  smallestSize = 70000000
+  findSmallestDir = (dir: Dir) => {
+    const space = this.unusedSpace + dir.totalSize
+    if (space >= this.neededSpace) {
+        this.smallestSize = dir.totalSize < this.smallestSize ? dir.totalSize : this.smallestSize
+    }
+    dir.childrenDir.forEach(d => {
+        this.findSmallestDir(d)
+    })
+  }
+
   process = (data: string[]) => {
     let root: Dir = new Dir("/", undefined)
     let parent: Dir | undefined = undefined
     let list: boolean = false
 
     for (const row of data) {
-        // console.log(row)
         if (list) {
             const data = row.split(' ')
             const size = parseInt(data[0], 10)
@@ -121,9 +132,11 @@ class Solve07 extends FileReader {
         }
     }
     this.sumFiles(root)
-    //this.printTree(root, 2)
     this.totalSumCalc(root)
     console.log(this.totalSum1)
+    this.unusedSpace = this.filesystemSize - root.totalSize
+    this.findSmallestDir(root)
+    console.log(this.smallestSize)
   };
 }
 
