@@ -14,6 +14,7 @@ class Dir {
     parent: Dir | undefined
     childrenDir: Dir[] = []
     files: File[] = []
+    totalSize = 0
     constructor(name: string, parent: Dir | undefined) {
         this.name = name
         this.parent = parent
@@ -31,17 +32,22 @@ class Dir {
         if (!file) {
             file = new File(name, size)
             this.files.push(file)
+            this.totalSize += size
         }
     }
+    updateTotalSize = (subDir: Dir) => {
+        //console.log('update', this.name, '<-', subDir.name, subDir.totalSize)
+        this.totalSize += subDir.totalSize
+    }
     print = (prefix: string = "") => {
-        console.log(prefix, "Dir:", this.name, "parent:", this.parent?.name, "children:", this.childrenDir.map(c => c.name).join(", "), "files:", this.files.map(f => f.name).join(", "))
+        console.log(prefix, "Dir:", this.name, this.totalSize, "p:", this.parent?.name, "sub:", this.childrenDir.map(c => c.name).join(", "), "files:", this.files.map(f => f.name).join(", "))
     }
 }
 
 class Solve07 extends FileReader {
   constructor() {
     super();
-    this.readData("src/07/test.data")
+    this.readData("src/07/input.data")
       .then((data) => {
         this.process(data.split("\n"));
       })
@@ -52,6 +58,23 @@ class Solve07 extends FileReader {
     const prefix = Array(level).join(" ")
     dir.print(prefix)
     dir.childrenDir.forEach(d => this.printTree(d, level * 2))    
+  }
+
+  sizeLimit1 = 100000
+  totalSum1 = 0
+  totalSumCalc = (dir: Dir): void => {
+    if (dir.totalSize <= this.sizeLimit1) {
+        console.log('sum', dir.name, dir.totalSize)
+        this.totalSum1 += dir.totalSize
+    }
+    dir.childrenDir.forEach(d => this.totalSumCalc(d))   
+  }
+
+  sumFiles = (dir: Dir): void => {
+    dir.childrenDir.forEach(d => {
+        this.sumFiles(d)
+    })
+    dir.parent?.updateTotalSize(dir)
   }
 
   process = (data: string[]) => {
@@ -97,7 +120,10 @@ class Solve07 extends FileReader {
             list = true
         }
     }
-    this.printTree(root, 2)
+    this.sumFiles(root)
+    //this.printTree(root, 2)
+    this.totalSumCalc(root)
+    console.log(this.totalSum1)
   };
 }
 
