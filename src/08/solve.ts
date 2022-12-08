@@ -66,6 +66,56 @@ class Solve08 extends FileReader {
     return false;
   }
 
+  scenicScore = (trees: Array<Array<number>>, x: number, y: number): number => {
+    const len = trees.length
+    if (x === 0 || y === 0 || x === len - 1 || y === len - 1) {
+        return 0;
+    }    
+    const val = trees[y][x]
+    let result = 1
+    let dist = 0
+    for (let iy=y+1;iy<len;iy++) {
+        dist++
+        const tmp = trees[iy][x]
+        if (tmp >= val) {
+            break
+        }
+    }
+    result *= dist
+
+    dist = 0
+    for (let ix=x-1;ix>=0;ix--) {
+        dist++
+        const tmp = trees[y][ix]
+        if (tmp >= val) {            
+            break            
+        }
+    }
+    result *= dist
+
+    dist = 0
+    for (let iy=y-1;iy>=0;iy--) {
+        dist++
+        const tmp = trees[iy][x]
+        if (tmp >= val) {
+            break
+        }
+    }
+    result *= dist
+
+    dist = 0
+    for (let ix=x+1;ix<len;ix++) {
+        dist++
+        const tmp = trees[y][ix]
+        if (tmp >= val) {
+            break
+        }
+    }
+    result *= dist
+
+    return result;
+  }
+
   process = (data: string) => {        
     const trees = new Array<Array<number>>()    
     data.split("\n").forEach(row => {
@@ -75,14 +125,18 @@ class Solve08 extends FileReader {
     })
     const len = trees.length
     let cnt = 0
+    let max = 0
     for (let x=0;x<len;x++) {
         for (let y=0;y<len;y++) {
             if (this.isTreeVisible(trees, x, y)) {
                 cnt++;
             }
+            const tmpMax = this.scenicScore(trees, x, y)
+            max = tmpMax > max ? tmpMax : max
         }
     }
     console.log(cnt)
+    console.log(max)
   };
 }
 
