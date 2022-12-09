@@ -37,8 +37,8 @@ class Head extends Point {
 }
 class Tail extends Point {
     history: string[] = []
-    head: Head
-    constructor(x: number, y: number, head: Head) {
+    head: Point
+    constructor(x: number, y: number, head: Point) {
         super(x, y)
         this.head = head
         this.addToHistory(this.x, this.y)
@@ -111,12 +111,13 @@ class Solve09 extends FileReader {
     super();
     this.readData("src/09/input.data")
       .then((data) => {
-        this.process(data.split("\n"));
+        this.process1(data.split("\n"));
+        this.process2(data.split("\n"));
       })
       .catch((err) => console.log(err));
   }
 
-  process = (data: string[]) => {
+  process1 = (data: string[]) => {
     const head = new Head(0, 0)
     const tail = new Tail(0, 0, head)
     data.forEach(row => {
@@ -126,6 +127,26 @@ class Solve09 extends FileReader {
     })
     console.log(tail.history.length)
   };
+
+  process2 = (data: string[]) => {
+    const head = new Head(0, 0)
+    const tails: Tail[] = []
+    const size = 9
+    let last: Point = head
+    for (let i=0;i<size;i++) {
+        const tail = new Tail(0, 0, last)
+        tails.push(tail)
+        last = tail
+    }
+    
+    data.forEach(row => {
+        const data = row.split(' ');
+        head.move(data[0] as Dir, parseInt(data[1], 10))
+        tails.forEach(t => t.moveToHead())
+    })
+    console.log((last as Tail).history.length)
+  };
+
 }
 
 new Solve09();
