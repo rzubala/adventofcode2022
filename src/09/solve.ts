@@ -38,13 +38,18 @@ class Head extends Point {
 class Tail extends Point {
     history: string[] = []
     head: Point
-    constructor(x: number, y: number, head: Point) {
+    withHistory: boolean
+    constructor(x: number, y: number, head: Point, withHistory = false) {
         super(x, y)
         this.head = head
+        this.withHistory = withHistory
         this.addToHistory(this.x, this.y)
     }
 
     addToHistory = (x: number, y: number) => {
+        if (!this.withHistory) {
+            return
+        }
         const key = x + "_" + y
         if (this.history.includes(key)) {
             return
@@ -53,6 +58,9 @@ class Tail extends Point {
     }
 
     addToHistoryRange = (a1: number, a2: number, b: number, xrange: boolean) => {
+        if (!this.withHistory) {
+            return
+        }        
         const diff = a2 - a1
         const step = Math.sign(diff)
         let i = a1
@@ -77,11 +85,8 @@ class Tail extends Point {
             const diffY = this.head.y - y
             const diffX = this.head.x - x
 
-            if (Math.abs(diffX) === 1 && diffY === 0 
-                || Math.abs(diffY) === 1 && diffX === 0
-                || diffX === 0 && diffY === 0
-                || Math.abs(diffX) === 1 && Math.abs(diffY) === 1) {
-                break
+            if ((diffX === 0 || Math.abs(diffX) === 1) && (diffY === 0 || Math.abs(diffY) === 1)) {
+                break;
             }
             if (diffY === 0) {
                 const tmp = x
@@ -119,7 +124,7 @@ class Solve09 extends FileReader {
 
   process1 = (data: string[]) => {
     const head = new Head(0, 0)
-    const tail = new Tail(0, 0, head)
+    const tail = new Tail(0, 0, head, true)
     data.forEach(row => {
         const data = row.split(' ');
         head.move(data[0] as Dir, parseInt(data[1], 10))
@@ -134,15 +139,19 @@ class Solve09 extends FileReader {
     const size = 9
     let last: Point = head
     for (let i=0;i<size;i++) {
-        const tail = new Tail(0, 0, last)
+        const tail = new Tail(0, 0, last, i === size -1)
         tails.push(tail)
         last = tail
     }
     
     data.forEach(row => {
         const data = row.split(' ');
-        head.move(data[0] as Dir, parseInt(data[1], 10))
-        tails.forEach(t => t.moveToHead())
+        const moves = parseInt(data[1], 10)
+        const dir = data[0] as Dir
+        for (let i=0;i<moves;i++) {
+            head.move(dir, 1)
+            tails.forEach(t => t.moveToHead())
+        }
     })
     console.log((last as Tail).history.length)
   };
