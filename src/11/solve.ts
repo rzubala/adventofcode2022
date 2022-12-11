@@ -20,7 +20,6 @@ const getOperation = (data: string[]): operation => {
 class Monkey {
   id: number
   private _items: number[] = [];
-  //private _newItems: number[] = [];
   private _op: operation = nop();
   private _test: number = 1;
   private _tM: number = -1;
@@ -29,9 +28,16 @@ class Monkey {
 
   addNewItemToMonkey = (id: number, value: number, monkeys: Monkey[]) => monkeys.find(m => m.id === id)?.items.push(value)
 
-  process(monkeys: Monkey[]) {
+  process(monkeys: Monkey[], reduction: number | undefined) {
     this.items.forEach(item => {
-      let newItem = Math.floor(this.op(item) / 3)
+      let newItem = item
+      if (reduction !== undefined) {
+        newItem %= reduction
+      }
+      newItem = this.op(newItem)
+      if (reduction === undefined) {
+        newItem = Math.floor(newItem / 3)
+      }
       let nextId = this.fM
       if (newItem % this.test === 0) {
         nextId = this.tM
@@ -89,14 +95,16 @@ class Solve11 extends FileReader {
     super();
     this.readData("src/11/input.data")
       .then((data) => {
-        this.process(data.split("\n"));
+        this.process(data.split("\n"), true);
+        this.process(data.split("\n"), false);
       })
       .catch((err) => console.log(err));
   }
 
-  process = (data: string[]) => {
+  process = (data: string[], part1: boolean) => {
     const monkeys: Monkey[] = []
     let monkey: Monkey | undefined = undefined
+    let reduction = 1
 
     data.forEach(row => {
       if (row.includes('Monkey ')) {
@@ -112,6 +120,7 @@ class Solve11 extends FileReader {
       } else if (row.includes('Test')) {
         const test = parseInt(row.split('Test: divisible by ')[1], 10)
         monkey!.test = test
+        reduction *= test
       } else if (row.includes('If true')) {
         const trueMonkey = parseInt(row.split('If true: throw to monkey ')[1], 10)
         monkey!.tM = trueMonkey
@@ -121,10 +130,10 @@ class Solve11 extends FileReader {
       }
     })
 
-    let cnt = 20
-    for (let i=0;i<cnt;i++) {
+    let cnt = part1 ? 20 : 10000
+    for (let i=1;i<=cnt;i++) {
       monkeys.forEach(monkey => {
-        monkey.process(monkeys)
+        monkey.process(monkeys, part1 ? undefined : reduction)
       })
     }
 
