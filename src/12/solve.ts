@@ -31,7 +31,8 @@ class Solve12 extends FileReader {
     super();
     this.readData("src/12/input.data")
       .then((data) => {
-        this.process(data.split("\n"));
+        this.process(data.split("\n"), false);
+        this.process(data.split("\n"), true);
       })
       .catch((err) => console.log(err));
   }
@@ -48,18 +49,16 @@ class Solve12 extends FileReader {
     }
   }
 
-  process = (data: string[]) => {
-    let start: Point | undefined = undefined
+  process = (data: string[], part2: boolean) => {
+    let starts: Point[] = []
     let stop: Point | undefined = undefined
 
     this.map = new Array()
-    this.pathLength = new Array()
     this.maxYIndex = data.length - 1
     this.minIndex = 0
 
     for (const rowIndex in data) {
       this.map.push(new Array(this.maxYIndex + 1))
-      this.pathLength.push(new Array(this.maxXIndex + 1).fill(-1))
       const row = data[rowIndex]
       const values = row.split('')
       for (const valueIndex in values) {
@@ -68,7 +67,9 @@ class Solve12 extends FileReader {
         let value = eValue(valueStr)
         if (valueStr === 'S') {
           value = eValue("a")
-          start = new Point(+valueIndex, +rowIndex)
+          starts.push(new Point(+valueIndex, +rowIndex))
+        } else if (part2 && valueStr === 'a') {
+          starts.push(new Point(+valueIndex, +rowIndex))
         } else if (valueStr === 'E') {
           value = eValue("z")
           stop = new Point(+valueIndex, +rowIndex)
@@ -77,12 +78,23 @@ class Solve12 extends FileReader {
       }  
     }
 
-    //console.log(start, stop)
-    this.findPath(start!, stop!)
+    let min = Number.MAX_SAFE_INTEGER
+    for (const start of starts) {
+      this.pathLength = []
+      for (let r=0;r<=this.maxYIndex;r++) {
+        this.pathLength.push(new Array(this.maxXIndex + 1).fill(-1))
+      }
+      this.findPath(start, stop!)
 
-    // console.log(this.map)
-    // console.log(this.pathLength)
-    console.log(this.pathLength[stop!.y][stop!.x])
+      // console.log(this.map)
+      // console.log(this.pathLength)
+      const path = this.pathLength[stop!.y][stop!.x] 
+      console.log(part2, 'start',start.y, start.x,path)
+      if (path >0 && path < min) {
+        min = path
+      }
+    }
+    console.log(min)
     //this.print(this.pathLength)
   };
 
