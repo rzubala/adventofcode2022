@@ -43,12 +43,6 @@ class Solve12 extends FileReader {
   maxYIndex = 0
   minIndex = 0
 
-  print = (matrix: Array<Array<number>>) => {
-    for (const row of matrix) {
-      console.log(row)
-    }
-  }
-
   process = (data: string[], part2: boolean) => {
     let starts: Point[] = []
     let stop: Point | undefined = undefined
@@ -85,17 +79,12 @@ class Solve12 extends FileReader {
         this.pathLength.push(new Array(this.maxXIndex + 1).fill(-1))
       }
       this.findPath(start, stop!)
-
-      // console.log(this.map)
-      // console.log(this.pathLength)
       const path = this.pathLength[stop!.y][stop!.x] 
-      console.log(part2, 'start',start.y, start.x,path)
-      if (path >0 && path < min) {
+      if (path > 0 && path < min) {
         min = path
       }
     }
     console.log(min)
-    //this.print(this.pathLength)
   };
 
   findPath = (start: Point, stop: Point) => {
@@ -117,18 +106,15 @@ class Solve12 extends FileReader {
       if (length < 0) {
         length = 0
       }
-      //console.log(nextPoint.y, nextPoint.x, length, height)
       for (const np of n) {
         const nextHeight = this.map[np.y][np.x]
         const nextLength = this.pathLength[np.y][np.x]
-        //console.log('\t', np.y, np.x, nextLength, nextHeight)
         if (nextHeight > height + 1) {
           continue;
         }
-        if (nextLength >=0) {
+        if (nextLength >= 0) {
           continue
         }
-        //console.log('\t\t', 'added')
         nextPoints.push(np)
         this.pathLength[np.y][np.x] = length + 1
       }
