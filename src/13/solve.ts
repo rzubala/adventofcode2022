@@ -52,7 +52,7 @@ const parse = (input: string): Packet => {
   return packet
 }
 
-const compare = (packet1: Packet | undefined, packet2: Packet | undefined, iterator1: number = 0, iterator2: number = 0): boolean | undefined => {
+const compare = (packet1: Packet | undefined, packet2: Packet | undefined, iterator1: number = 0, iterator2: number = 0, single1: boolean = false, single2: boolean = false): boolean | undefined => {
   const data1 = packet1?.data
   const data2 = packet2?.data
   if (data1 === undefined) {
@@ -61,29 +61,33 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
     return false
   }
   console.log('compare levels', packet1?.level, packet2?.level)
-  const len1 = data1.length
-  const len2 = data2.length
+  const len1 = single1 ? 1 : data1.length
+  const len2 = single2 ? 1 : data2.length
   let it1 = iterator1
   let it2 = iterator2
   let result: boolean | undefined = undefined;
   while (true) {
+    console.log(it1, len1, it2, len2, result)
     if (it1 === len1 && it2 === len2) {
       return result
     }
-    if (it1 === len1) {
-      return true
+    if (it1 === len1 && it2 < len2) {
+      return result === undefined ? true : false
     }
-    if (it2 === len2) {
+    if (it1 < len1 && it2 === len2) {
       return false
     }
     const tmp1 = data1[it1]
     const tmp2 = data2[it2]
     if (tmp1 instanceof Packet && tmp2 instanceof Packet) {
+      console.log('next packet', 'next packet')
       result = compare(tmp1, tmp2)
     } else if (tmp1 instanceof Packet && !(tmp2 instanceof Packet)) {
-      result = compare(tmp1, packet2, 0, it2)
+      console.log('next packet', it2)
+      result = compare(tmp1, packet2, 0, it2, false, true)
     } else if (!(tmp1 instanceof Packet) && tmp2 instanceof Packet) {
-      result = compare(packet1, tmp2, it1, 0)
+      console.log(it1, 'next packet')
+      result = compare(packet1, tmp2, it1, 0, false, false)
     } else if (typeof tmp1 === 'number' && typeof tmp2 === 'number') {
       console.log('\t', tmp1, tmp2)
       if (tmp1 < tmp2) {
@@ -95,8 +99,8 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
       throw 'something went wrong'
     }
 
-    if (!!result) {
-      return true
+    if (result === true || result === false) {
+      return result
     }
 
     it1 += 1
@@ -134,6 +138,10 @@ class Solve13 extends FileReader {
         pair.part1 = parse(data[rowIndex])
       } else if (+rowIndex % 3 === 1) {
         pair!.part2 = parse(data[rowIndex])
+        if (pairs.length === 60) {
+          console.log(data[+rowIndex-1])
+          console.log(data[rowIndex])
+        }
       }
     }
 
@@ -144,8 +152,8 @@ class Solve13 extends FileReader {
     let result = 0
     pairs.forEach((p: Pair, index: number) => {
       const cmp = compare(p.part1, p.part2)
-      console.log('*** ', index + 1, cmp)
-      if (cmp) {
+      console.log(index + 1, cmp)
+      if (cmp === true) {
         result += index + 1
       }
     })
