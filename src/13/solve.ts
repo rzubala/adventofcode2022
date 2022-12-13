@@ -148,7 +148,34 @@ class Solve13 extends FileReader {
       }
     })
     console.log(result)
+
+    this.process2(pairs)
+
   };
+
+  process2 = (pairs: Pair[]) => {
+    const list: Packet[] = []
+    pairs.forEach(p => {
+      list.push(p.part1!)
+      list.push(p.part2!)
+    })
+    const packet2 = parse('[[2]]') 
+    const packet6 = parse('[[6]]') 
+    list.push(packet2)
+    list.push(packet6)
+
+    list.sort((a: Packet, b: Packet) => {
+      const cmp = compare(a, b)
+      return cmp ? -1 : 1
+    })
+
+    
+
+    const position2 = list.indexOf(packet2) + 1;
+    const position6 = list.indexOf(packet6) + 1;
+  
+    console.log(position2 * position6);
+  }
 }
 
 new Solve13();
