@@ -60,14 +60,12 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
   } if (data2 === undefined) {
     return false
   }
-  console.log('compare levels', packet1?.level, packet2?.level)
   const len1 = single1 ? 1 : data1.length
   const len2 = single2 ? 1 : data2.length
   let it1 = iterator1
   let it2 = iterator2
   let result: boolean | undefined = undefined;
   while (true) {
-    console.log(it1, len1, it2, len2, result)
     if (it1 === len1 && it2 === len2) {
       return result
     }
@@ -80,16 +78,12 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
     const tmp1 = data1[it1]
     const tmp2 = data2[it2]
     if (tmp1 instanceof Packet && tmp2 instanceof Packet) {
-      console.log('next packet', 'next packet')
       result = compare(tmp1, tmp2)
     } else if (tmp1 instanceof Packet && !(tmp2 instanceof Packet)) {
-      console.log('next packet', it2)
       result = compare(tmp1, packet2, 0, it2, false, true)
     } else if (!(tmp1 instanceof Packet) && tmp2 instanceof Packet) {
-      console.log(it1, 'next packet')
       result = compare(packet1, tmp2, it1, 0, false, false)
     } else if (typeof tmp1 === 'number' && typeof tmp2 === 'number') {
-      console.log('\t', tmp1, tmp2)
       if (tmp1 < tmp2) {
         return true
       } else if (tmp1 > tmp2) {
@@ -138,21 +132,17 @@ class Solve13 extends FileReader {
         pair.part1 = parse(data[rowIndex])
       } else if (+rowIndex % 3 === 1) {
         pair!.part2 = parse(data[rowIndex])
-        if (pairs.length === 60) {
-          console.log(data[+rowIndex-1])
-          console.log(data[rowIndex])
-        }
+        // if (pairs.length === 60) {
+        //   console.log(data[+rowIndex-1])
+        //   console.log(data[rowIndex])
+        // }
       }
     }
-
-    //pairs.forEach(p => console.log(p.part1, p.part2))
-    // const tmp = pairs[7]
-    // compare(tmp.part1, tmp.part2)
 
     let result = 0
     pairs.forEach((p: Pair, index: number) => {
       const cmp = compare(p.part1, p.part2)
-      console.log(index + 1, cmp)
+      //console.log(index + 1, cmp)
       if (cmp === true) {
         result += index + 1
       }
