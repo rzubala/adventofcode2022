@@ -52,7 +52,7 @@ const parse = (input: string): Packet => {
   return packet
 }
 
-const compare = (packet1: Packet | undefined, packet2: Packet | undefined, iterator1: number = 0, iterator2: number = 0, single1: boolean = false, single2: boolean = false): boolean | undefined => {
+const compare = (packet1: Packet | undefined, packet2: Packet | undefined, iterator1: number = 0, iterator2: number = 0, single: boolean = false): boolean | undefined => {
   const data1 = packet1?.data
   const data2 = packet2?.data
   if (data1 === undefined) {
@@ -60,8 +60,8 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
   } if (data2 === undefined) {
     return false
   }
-  const len1 = single1 ? 1 : data1.length
-  const len2 = single2 ? 1 : data2.length
+  const len1 = data1.length
+  const len2 = single ? 1 : data2.length
   let it1 = iterator1
   let it2 = iterator2
   let result: boolean | undefined = undefined;
@@ -80,35 +80,21 @@ const compare = (packet1: Packet | undefined, packet2: Packet | undefined, itera
     if (tmp1 instanceof Packet && tmp2 instanceof Packet) {
       result = compare(tmp1, tmp2)
     } else if (tmp1 instanceof Packet && !(tmp2 instanceof Packet)) {
-      result = compare(tmp1, packet2, 0, it2, false, true)
+      result = compare(tmp1, packet2, 0, it2, true)
     } else if (!(tmp1 instanceof Packet) && tmp2 instanceof Packet) {
-      result = compare(packet1, tmp2, it1, 0, false, false)
+      result = compare(packet1, tmp2, it1, 0, false)
     } else if (typeof tmp1 === 'number' && typeof tmp2 === 'number') {
       if (tmp1 < tmp2) {
         return true
       } else if (tmp1 > tmp2) {
         return false
       }
-    } else {
-      throw 'something went wrong'
     }
-
-    if (result === true || result === false) {
+    if (result !== undefined) {
       return result
     }
-
     it1 += 1
     it2 += 1
-  }
-}
-
-const printPacket = (packet: Packet) => {
-  for (const data of packet.data) {
-    if (typeof data === 'number') {
-      console.log(`${packet.level}:\t`, data)
-    } else {
-      printPacket(data)
-    }
   }
 }
 
@@ -132,25 +118,17 @@ class Solve13 extends FileReader {
         pair.part1 = parse(data[rowIndex])
       } else if (+rowIndex % 3 === 1) {
         pair!.part2 = parse(data[rowIndex])
-        // if (pairs.length === 60) {
-        //   console.log(data[+rowIndex-1])
-        //   console.log(data[rowIndex])
-        // }
       }
     }
 
     let result = 0
     pairs.forEach((p: Pair, index: number) => {
-      const cmp = compare(p.part1, p.part2)
-      //console.log(index + 1, cmp)
-      if (cmp === true) {
+      if (compare(p.part1, p.part2)) {
         result += index + 1
       }
     })
     console.log(result)
-
     this.process2(pairs)
-
   };
 
   process2 = (pairs: Pair[]) => {
@@ -169,12 +147,10 @@ class Solve13 extends FileReader {
       return cmp ? -1 : 1
     })
 
-    
-
-    const position2 = list.indexOf(packet2) + 1;
-    const position6 = list.indexOf(packet6) + 1;
+    const pos2 = list.indexOf(packet2) + 1;
+    const pos6 = list.indexOf(packet6) + 1;
   
-    console.log(position2 * position6);
+    console.log(pos2 * pos6);
   }
 }
 
