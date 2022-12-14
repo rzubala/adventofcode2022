@@ -14,13 +14,15 @@ class Solve14 extends FileReader {
     super();
     this.readData("src/14/input.data")
       .then((data) => {
-        this.process(data.split("\n"));
+        this.process(data.split("\n"), false);
+        this.process(data.split("\n"), true);
       })
       .catch((err) => console.log(err));
   }
 
   rocks: Map<string, boolean> = new Map()
   blocksByX: Map<number, number[]> = new Map()
+  maxY = 0
 
   addToMap = (map: Map<number, number[]>, index: number, value: number) => {
     const arr = map.get(index) || []
@@ -34,6 +36,12 @@ class Solve14 extends FileReader {
   key = (x: number, y: number) => `${x}_${y}`
 
   addPoints = (x1: number, y1: number, x2: number, y2: number) => {
+    if (y1 > this.maxY) {
+      this.maxY = y1
+    }
+    if (y2 > this.maxY) {
+      this.maxY = y2
+    }
     if (x1 === x2) {
       const diff = Math.abs(y2 - y1) + 1
       const it = Math.sign(y2 - y1)
@@ -63,29 +71,11 @@ class Solve14 extends FileReader {
 
   blockedNext = (point: Point, left: boolean) => this.blocksByX.get(point.x + (left ? -1 : 1))?.includes(point.y + 1)
 
-  print = () => {
-    // for (let y=0;y<=9;y++) {
-    for (let y=150;y<=170;y++) {
-      let line = ""
-      // for (let x=494;x<=503;x++) {
-      for (let x=500;x<=550;x++) {
-        const r = this.rocks.get(this.key(x,y))
-        if (r !== undefined) {
-          line += "#"
-          continue
-        }
-        const s = this.blocksByX.get(x)?.includes(y)
-        if (s) {
-          line += "o"
-          continue
-        }
-        line += "."
-      }
-      console.log(line)
-    }
-  }
+  process = (data: string[], part2: boolean) => {
+    this.rocks = new Map()
+    this.blocksByX = new Map()
+    this.maxY = 0
 
-  process = (data: string[]) => {
     data.forEach(row => {
       const segments = row.split(' -> ')
       let last = segments[0].split(',')
@@ -101,9 +91,16 @@ class Solve14 extends FileReader {
       let sand = new Point(500, 0)      
 
       while (true) {
+        if (part2 && this.blocksByX.get(500)?.includes(0)) {
+          done = true
+        }
         const newYarr = this.blocksByX.get(sand.x)?.filter(y => y >= sand.y)
         if (newYarr === undefined || newYarr.length === 0) {
-          done = true
+          if (part2) {
+            this.addToMap(this.blocksByX, sand.x, this.maxY + 1)
+          } else {
+            done = true
+          }
           break
         }
         newYarr.sort((a: number, b: number) => a - b)
