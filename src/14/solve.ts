@@ -3,7 +3,7 @@ import { FileReader } from "../common";
 class Solve14 extends FileReader {
   constructor() {
     super();
-    this.readData("src/14/input.data")
+    this.readData("src/14/test.data")
       .then((data) => {
         this.process(data.split("\n"));
       })
